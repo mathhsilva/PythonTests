@@ -1,36 +1,72 @@
-import psycopg2
-import customtkinter
-from tkinter import *
-from CTkMessagebox import CTkMessagebox
-import customtkinter as ctk
-import os
+import tkinter as tk
+import customtkinter as customtkinter
+import subprocess
 
-# Criando janela
-self.janela = customtkinter.Ctk()
+class MenuRetratil:
+    def __init__(self, janela):
+        self.janela = janela
+        self.menu_expandido = False
+
+        # Botão do menu
+        self.botao_menu = tk.Button(self.janela, text="Menu", command=self.toggle_menu, bg="darkgray", fg="white")
+        self.botao_menu.pack()
+
+        # Crie o menu retrátil como um frame com fundo escuro
+        self.menu_frame = tk.Frame(self.janela, bg="darkgray")
+
+        # Botões do menu com fundo escuro e texto branco
+        self.botao_menu_nova_tarefa = tk.Button(self.menu_frame, text="Nova Tarefa", command=self.nova_tarefa, bg="darkgray", fg="white")
+        self.botao_menu_add_usuario = tk.Button(self.menu_frame, text="Registrar usuário", command=self.novo_usuario, bg="darkgray", fg="white")
+        self.botao_menu_tarefas_concluidas = tk.Button(self.menu_frame, text="Tarefas Concluídas", command=self.tarefas_concluidas, bg="darkgray", fg="white")
+
+        # Empacote os botões do menu no frame
+        self.botao_menu_nova_tarefa.pack()
+        self.botao_menu_add_usuario.pack()
+        self.botao_menu_tarefas_concluidas.pack()
+
+        # Inicialmente, o menu está oculto
+        self.menu_frame.pack_forget()
+
+    def toggle_menu(self):
+        if self.menu_expandido:
+            self.menu_frame.pack_forget()  # Oculta o menu
+            self.menu_expandido = False
+        else:
+            self.menu_frame.pack()  # Exibe o menu
+            self.menu_expandido = True
+
+    def nova_tarefa(self):
+        # Lógica para a ação "Nova Tarefa"
+        subprocess.Popen(["python", "novatarefa.py"])
+
+    def tarefas_concluidas(self):
+        # Lógica para a ação "Tarefas Concluídas"
+        pass
+
+    def novo_usuario(self):
+        # Lógica para a ação "Registrar usuário"
+        pass
 
 class Application():
     def __init__(self):
-        #self.janela = customtkinter.CTk()
+        self.janela = tk.Tk()
         self.criar_tela()
 
     def criar_tela(self):
         # Criando janela
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("dark-blue")
+        self.janela.configure(bg='black')
         self.janela.geometry("800x600")
         self.janela.resizable(False, False)
-        self.janela.iconbitmap("icon.ico")       #Icone da janela
+        self.janela.iconbitmap("icon.ico")  # Ícone da janela
 
-        # Frame
-        # frame = customtkinter.CTkFrame(master=self.janela, width=360, height=496)
-        # frame.pack(side=RIGHT)
+        # Crie o menu retrátil
+        menu_retratil = MenuRetratil(self.janela)
 
-        # Frame Widgets
-        # label3 = customtkinter.CTkLabel(master=frame, text="Sistema de Controle de Estoque", font=("Roboto", 20))
-        # label3.place(x=25, y=25)
-
-        # Botão de sair
-        botao_sair = customtkinter.CTkButton(master=janela, width=300, text="Sair", command=self.janela.quit).place(relx=0, rely=0.05, anchor="w")
+        # Botão "Sair" fora do menu e alinhado à esquerda na parte inferior
+        botao_sair = tk.Button(self.janela, text="Sair", command=self.janela.quit, bg="darkgray", fg="white")
+        botao_sair.pack(side="left", anchor="sw")
 
         self.janela.mainloop()
 
