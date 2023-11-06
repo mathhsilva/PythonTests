@@ -7,11 +7,14 @@ from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
 import os
 
+# Classe da aplicação
+
 class Application():
     def __init__(self):
         self.janela = customtkinter.CTk()
         self.criar_interface()
-        
+
+# Cria a conexão com o banco (postgres - psycopg2 )   
     def criar_conexao(self):
         try:
             conexao = psycopg2.connect(
@@ -27,6 +30,7 @@ class Application():
             print(e)
             return None
 
+# Valida se o login está correto
     def validar_login(self, login, senha):
         try: 
             conexao = self.criar_conexao()
@@ -43,6 +47,7 @@ class Application():
             print(error)
             return False      
 
+# Função de click no botão (Armazena os dados dos edits)
     def onClick(self):
         login_digitado = self.edlogin.get()
         senha_digitada = self.edsenha.get()
@@ -54,6 +59,7 @@ class Application():
         else:
             CTkMessagebox(title="Erro", message="Credenciais Inválidas")  
 
+   # Função de criar interface
     def criar_interface(self):
         # Criando janela
         customtkinter.set_appearance_mode("dark")
@@ -72,8 +78,8 @@ class Application():
         frame.pack(side=RIGHT)
 
         # Frame Widgets
-        label3 = customtkinter.CTkLabel(master=frame, text="Sistema de Login", font=("Roboto", 20))
-        label3.place(x=25, y=25)
+        label3 = customtkinter.CTkLabel(master=self.janela, text="Sistema de Login", font=("Roboto", 25, "bold"))
+        label3.place(relx=0.5, rely=0.05, anchor="center")
 
         # Criando campo de entrada para o login
         self.edlogin = customtkinter.CTkEntry(master=frame, placeholder_text="Informe seu login", width=300, font=("Robot o", 14))
