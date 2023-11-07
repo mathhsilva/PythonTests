@@ -4,13 +4,13 @@ from tkinter import *
 from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
 import os
+from datetime import datetime
 
-class Application():
+class Application:
     def __init__(self):
         self.janela = customtkinter.CTk()
         self.criar_interface()
 
-    # Cria a conexão com o banco (postgres - psycopg2 )   
     def criar_conexao(self):
         try:
             conexao = psycopg2.connect(
@@ -26,47 +26,90 @@ class Application():
             print(e)
             return None
 
-    # Valida se o login está correto
     def validar_login(self, login, senha):
-        try: 
+        try:
             conexao = self.criar_conexao()
             cursor = conexao.cursor()
-            cursor.execute("Select * from usuario where usu_login = %s and usu_senha = %s", (login,senha))
+            cursor.execute("SELECT * FROM usuario WHERE usu_login = %s AND usu_senha = %s", (login, senha))
             usuario = cursor.fetchone()
             conexao.close()
-            
-            if usuario is not None:
-                return True 
-            else: 
-                return False
-        except (Exception, psycopg2.DatabaseError) as error: 
-            print(error)
-            return False      
 
-    # Função de click no botão (Armazena os dados dos edits)
-    def onClick(self):
-        login_digitado = self.edlogin.get()
-        senha_digitada = self.edsenha.get()
-        
-        if self.validar_login(login_digitado, senha_digitada):
-            CTkMessagebox(title="Sucesso!", message="Login efetuado com sucesso!")
-            self.janela.destroy()  # Fecha a janela de login
-            os.system('python main.py') 
-        else:
-            CTkMessagebox(title="Erro", message="Credenciais Inválidas")  
-    
-    #Função de validação de senhas
+            if usuario is not None:
+                return usuario
+            else:
+                return None
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return None
+
     def validar_senha(self):
         senha = self.edsenha.get()
         senha2 = self.edsenha2.get()
-        
+
         if senha == senha2:
             return True
         else:
-            CTkMessagebox(title="Erro", message="As senhas não conferem!") 
+            CTkMessagebox(title="Erro", message="As senhas não conferem!")
+            return False
+
+    def usuario_existe(self, login):
+        try:
+            conexao = self.criar_conexao()
+            cursor = conexao.cursor()
+            cursor.execute("SELECT 1 FROM usuario WHERE usu_login = %s", (login,))
+            existe = cursor.fetchone() is not None
+            conexao.close()
+            return existe
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            return False
+
+    def onClick(self):
+        login_digitado = self.edlogin.get()
+        senha_digitada = self.edsenha.get()
+
+        user_data = self.validar_login(login_digitado, senha_digitada)
+
+        if user_data:
+            CTkMessagebox(title="Sucesso!", message="Login efetuado com sucesso!")
+            self.janela.destroy()  # Fecha a janela de login
+            os.system('python main.py')
+        else:
+            CTkMessagebox(title="Erro", message="Credenciais Inválidas")
+
+    def cadastrar_usuario(self):
+        
+        # Obtém a data atual do sistema
+        data_atual = datetime.now()
+        # Formata a data no formato desejado (neste caso, ano-mês-dia)
+        data_formatada = data_atual.strftime('%Y-%m-%d')
+        
+        nome_digitado = self.ednome.get()
+        login_digitado = self.edlogin.get()
+        senha_digitada = self.edsenha.get()
+        senha2_digitada = self.edsenha2.get()
+
+        if not self.usuario_existe(login_digitado):
+            if self.validar_senha() and senha_digitada:
+                try:
+                    conexao = self.criar_conexao()
+                    cursor = conexao.cursor()
+
+                    # Utilize a sequência para gerar o valor de usu_id
+                    cursor.execute("INSERT INTO usuario (usu_id, usu_nome, usu_login, usu_senha, usu_datacad) VALUES (nextval('seq_usuario_id'), %s, %s, %s, %s)", (nome_digitado, login_digitado, senha_digitada, data_formatada))
+                    conexao.commit()
+                    CTkMessagebox(title="Sucesso!", message="Usuário cadastrado com sucesso!")
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print("Erro ao cadastrar usuário:", error)
+                finally:
+                    if conexao:
+                        conexao.close()
+            else:
+                CTkMessagebox(title="Erro", message="As senhas não conferem!")
+        else:
+            CTkMessagebox(title="Erro", message="O nome de usuário já existe!")
 
 
-    # Função de criar interface
     def criar_interface(self):
         # Criando janela
         customtkinter.set_appearance_mode("dark")
@@ -85,8 +128,12 @@ class Application():
         frame.pack(side=RIGHT)
 
         # Frame Widgets
-        label3 = customtkinter.CTkLabel(master=self.janela, text="Sistema de Cadastro de Usuários", font=("Roboto", 25, "bold"))
+        label3 = customtkinter.CTkLabel(master=self.janela, text="Cadastro de Usuários", font=("Roboto", 25, "bold"))
         label3.place(relx=0.5, rely=0.05, anchor="center")
+
+        # Criando campo de entrada para o nome
+        self.ednome = customtkinter.CTkEntry(master=frame, placeholder_text="Informe seu nome", width=300, font=("Robot o", 14))
+        self.ednome.place(x=25, y=65)
 
         # Criando campo de entrada para o login
         self.edlogin = customtkinter.CTkEntry(master=frame, placeholder_text="Informe seu login", width=300, font=("Robot o", 14))
@@ -94,20 +141,21 @@ class Application():
 
         # Criando campo de entrada para a senha
         self.edsenha = customtkinter.CTkEntry(master=frame, show="*", placeholder_text="Informe sua senha", width=300, font=("Roboto", 14))
-        self.edsenha.place(x=25, y=175)
+        self.edsenha.place(x=25, y=145)
         
         # Confirmando a senha
         self.edsenha2 = customtkinter.CTkEntry(master=frame, show="*", placeholder_text="Repita sua senha", width=300, font=("Roboto", 14))
-        self.edsenha2.place(x=25, y=245)
-        
-        # CheckBox
-        checkbox = customtkinter.CTkCheckBox(master=frame, text="Lembrar-me").place(x=25, y=305)
+        self.edsenha2.place(x=25, y=185)
 
         # Botão de login
-        botao_login = customtkinter.CTkButton(master=frame, width=300, text="Login", command=self.validar_senha).place(x=25, y=345)
-
+        # botao_login = customtkinter.CTkButton(master=frame, width=300, text="Login", command=self.onClick).place(x=25, y=275)
+        
+        # Botão de cadastro
+        botao_cadastro = customtkinter.CTkButton(master=frame, width=300, text="Cadastrar", command=self.cadastrar_usuario)
+        botao_cadastro.place(x=25, y=345)  # Posicione o botão onde desejar
+        
         # Botão de sair
-        botao_sair = customtkinter.CTkButton(master=frame, width=300, text="Sair", command=self.janela.quit).place(x=25, y=405)
+        botao_sair = customtkinter.CTkButton(master=frame, width=300, text="Sair", command=self.janela.quit).place(x=25, y=310)
 
         self.janela.mainloop()
 

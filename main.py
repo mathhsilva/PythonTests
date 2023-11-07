@@ -45,7 +45,7 @@ class MenuRetratil:
 
     def novo_usuario(self):
         # Lógica para a ação "Registrar usuário"
-        pass
+        subprocess.Popen(["python", "adduser.py"])
 
 class Application():
     def __init__(self):
