@@ -99,6 +99,13 @@ class Application:
                     cursor.execute("INSERT INTO usuario (usu_id, usu_nome, usu_login, usu_senha, usu_datacad) VALUES (nextval('seq_usuario_id'), %s, %s, %s, %s)", (nome_digitado, login_digitado, senha_digitada, data_formatada))
                     conexao.commit()
                     CTkMessagebox(title="Sucesso!", message="Usuário cadastrado com sucesso!")
+                    
+                    # Limpa os campos de entrada depois de um cadastro bem-sucedido
+                    self.ednome.delete(0, 'end')
+                    self.edlogin.delete(0, 'end')
+                    self.edsenha.delete(0, 'end')
+                    self.edsenha2.delete(0, 'end') 
+                    
                 except (Exception, psycopg2.DatabaseError) as error:
                     print("Erro ao cadastrar usuário:", error)
                 finally:

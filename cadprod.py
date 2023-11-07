@@ -13,5 +13,4 @@ janela.geometry("700x500")
 janela.resizable(False, False)
 janela.iconbitmap("icon.ico")       #Icone da janela
 
-        # Imagem de fundo da janela
 janela.mainloop()
