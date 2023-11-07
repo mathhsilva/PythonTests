@@ -15,7 +15,7 @@ class MenuRetratil:
         self.menu_frame = tk.Frame(self.janela, bg="darkgray")
 
         # Botões do menu com fundo escuro e texto branco
-        self.botao_menu_nova_tarefa = tk.Button(self.menu_frame, text="Nova Tarefa", command=self.nova_tarefa, bg="darkgray", fg="white")
+        self.botao_menu_nova_tarefa = tk.Button(self.menu_frame, text="Cadastro de Produtos", command=self.cad_prod, bg="darkgray", fg="white")
         self.botao_menu_add_usuario = tk.Button(self.menu_frame, text="Registrar usuário", command=self.novo_usuario, bg="darkgray", fg="white")
         self.botao_menu_tarefas_concluidas = tk.Button(self.menu_frame, text="Tarefas Concluídas", command=self.tarefas_concluidas, bg="darkgray", fg="white")
 
@@ -35,9 +35,9 @@ class MenuRetratil:
             self.menu_frame.pack()  # Exibe o menu
             self.menu_expandido = True
 
-    def nova_tarefa(self):
-        # Lógica para a ação "Nova Tarefa"
-        subprocess.Popen(["python", "novatarefa.py"])
+    def cad_prod(self):
+        # Lógica para a ação "Cadastro de Produtos"
+        subprocess.Popen(["python", "cadprod.py"])
 
     def tarefas_concluidas(self):
         # Lógica para a ação "Tarefas Concluídas"
